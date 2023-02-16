@@ -6,8 +6,8 @@ const logger =require('morgan');
 
 //라우팅모듈 설정
 const indexRouter= require('./routes/index');
-const userRouter= require('./routes/user');
-const aboutRouter= require('./routes/about');
+const memberRouter= require('./routes/member');
+const boardRouter= require('./routes/board');
 
 //express객테 생성 포트 변수 선언
 const app =express();
@@ -19,8 +19,8 @@ app.use(express.static(path.join(__dirname,'static')));
 
 //랴우팅 모듈 등록-클라이언트 요청 처리 핵심 파트
 app.use('/',indexRouter);
-app.use('/user',userRouter);
-app.use('/about',aboutRouter);
+app.use('/member',memberRouter);
+app.use('/board',boardRouter);
 
 //기타 라우팅 처리
 app.use((req, res)=>{
