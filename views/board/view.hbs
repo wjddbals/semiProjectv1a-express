@@ -1,0 +1,47 @@
+{{#section 'css'}}
+    <style>
+        #view { width: 700px; margin: 0 auto; }
+        label { display: inline-block; width: 110px;
+            text-align: right; font-weight: bold;
+            margin-left: 5px; }
+        #contents {border: 1px solid #eeeeee; display: inline-block;
+            width: 560px; min-height: 350px;
+        white-space: pre}
+    </style>
+{{/section}}
+{{#section 'script'}}
+<script src='/js/view.js'></script>
+
+{{/section}}
+
+< <main>
+    <h2>게시판 본문글</h2>
+    <div id="view">
+        {{#bds}}
+        <div><label>제목</label>
+            <span>{{title}}</span></div>
+
+        <div><label>작성자</label>
+            <span>{{userid}}</span></div>
+
+        <div><label>작성일</label>
+            <span>{{regdate}}({{views}}</span></div>
+
+        <div> <label class="drgup">본 문</label>
+            <span id="contents">{{contents}}
+                    </span></div>
+                    <input type="hidden" id="bno" value ="{{bno}}">
+                     <input type="hidden" id="uid" value ="{{userid}}">
+        {{/bds}}
+        <div><label></label>
+            {{#if session.userid}}
+            <button type="button"
+                    onclick="location.href='/board/write'">새글쓰기</button>{{/if}}
+            <button type="button"
+                    onclick="location.href='/board/list'">목록으로</button>
+        {{#if (eq session.userid bds.[0].userid)}}
+            <button type="button" id="updatebtn">수정하기</button>
+            <button type="button" id="deletebtn">삭제하기</button>{{/if}}
+        </div>
+    </div>
+</main>
