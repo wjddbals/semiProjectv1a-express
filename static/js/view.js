@@ -3,7 +3,7 @@ let updatebtn =document.querySelector('#updatebtn');
     let bno =document.querySelector('#bno').value;
 let uid =document.querySelector('#uid').value;
     updatebtn?.addEventListener('click',()=>{
-        location.href ='/board/update?bno='+ bno;
+        location.href ='/board/update?bno='+ bno + '&uid='+ uid;
     });
 deletebtn.addEventListener('click',()=>{
     if (confirm('정말로 삭제?'))
