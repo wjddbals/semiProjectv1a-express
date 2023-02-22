@@ -15,6 +15,11 @@ router.get('/sido', async (req,res)=>{
 
 
 });
+//path variable
+// rest api에서 사용하는 방식으로 경로를 변수로 사용하는 기법
+//:/시도
+//express프레임워크에서 /:변수명 형식으로 샤용하고
+//변수값을 가져오려면 req.params.번수명을 사용함
 
 router.get('/gugun/:sido', async (req,res)=>{
     let sido= req.params.sido;
@@ -25,7 +30,26 @@ router.get('/gugun/:sido', async (req,res)=>{
 
 });
 
+router.get('/dong/:sido/:gugun', async (req,res)=>{
+    let sido= req.params.sido;
+    let gugun= req.params.gugun;
+    let dongs =new Zipcode().getDong(sido,gugun).then(dong=>dong);
 
+    res.send(JSON.stringify(await dongs));
+
+
+});
+//----------------------------------------------
+router.get('/zip/:sido/:gugun/:dong', async (req,res)=>{
+    let sido= req.params.sido;
+    let gugun= req.params.gugun;
+    let dong= req.params.dong;
+    let zips =new Zipcode().getZipcode(sido,gugun,dong).then(zip=>zip);
+
+    res.send(JSON.stringify(await zips));
+
+
+});
 
 
 

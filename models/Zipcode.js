@@ -96,7 +96,7 @@ class Zipcode{
             let rs =result.resultSet;
             let row =null;
             while ((row=await rs.getRow())){
-                let zip ={'zipcode':row.ZIPCODE,'sido':row.SIDO,'gugun':row.GUGUN,'dong':row.DONG,'ri':row.RI,'bunji':row.BUNGI,}
+                let zip ={'zipcode':row.ZIPCODE,'sido':row.SIDO,'gugun':row.GUGUN,'dong':row.DONG,'ri':row.RI,'bunji':row.BUNJI,}
                 zips.push(zip);
             }
 

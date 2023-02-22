@@ -6,6 +6,12 @@ const makeopt = (elm, text) => {
     opt.appendChild(txt);
     elm.appendChild(opt);
 };
+const makeAddr = (elm, text) => {
+    let p = document.createElement('p');
+    let txt = document.createTextNode(text);
+    p.appendChild(txt);
+    elm.appendChild(p);
+};
 const setSido =(sidos) =>{
  let objs =JSON.parse(sidos); //문자열을 객체로
     objs.forEach((obj,idx)=>{
@@ -20,7 +26,19 @@ const setGugun =(guguns) =>{
     }
     makeopt(gugun,'--시군구--')
     objs.forEach((obj,idx)=>{
-        makeopt(sido,obj.sido);
+        makeopt(gugun,obj.gugun);
+    });
+};
+
+const setDong =(dongs) =>{
+    let objs =JSON.parse(dongs); //문자열=>
+    //문자열을 객체로
+    while (dong.lastChild){
+        dong.removeChild(dong.lastChild);
+    }
+    makeopt(dong,'--읍면동--')
+    objs.forEach((obj,idx)=>{
+        makeopt(dong,obj.dong);
     });
 };
 
@@ -37,15 +55,38 @@ const getGugun =() =>{
         .then(text =>setGugun(text));
 };
 const getDong =() =>{
-
+    fetch('/zipcode2/dong/'+ sido.value +'/'+ gugun.value)
+        .then(response =>response.text())
+        .then(text =>setDong(text));
 };
-const getZipcode=() =>{};
+const setZipcode=(zips) => {
+    let objs = JSON.parse(zips);
+
+    while (zipcode.lastChild) {
+        zipcode.removeChild(zipcode.lastChild);
+    }
+    objs.forEach((obj, idx) => {
+        let addr = `${obj.zipcode}${obj.sido}${obj.sido}` +
+            `${obj.dong} ${obj.ri} ${obj.bunji}`;
+        makeAddr(zipcode, addr);
+    })
+
+}
+
+const getZipcode=() =>{
+    fetch(`/zipcode2/zip/${sido.value}/${gugun.value}/${ dong.value}`)
+        .then(response =>response.text())
+        .then(text =>setZipcode(text));
+};
+
 
 let sido =document.querySelector('#sido');
 let gugun =document.querySelector('#gugun');
 let dong =document.querySelector('#dong');
+let zipcode =document.querySelector('#zipcode');
 
 sido.addEventListener('change',getGugun);
 gugun.addEventListener('change',getDong);
 dong.addEventListener('change',getZipcode);
+
 getSido();
