@@ -76,7 +76,7 @@ router.post('/update',(req,res)=>{
     if (uid && suid && (uid == suid)) {
          new Board(bno,title,uid,0,contents,0)
             .update(bno).then(cnt=> cnt);
-        res.redirect(303, `/board/view?bno=${bno}`);
+        res.redirect(303, '/board/list');
     } else {
         res.redirect(303, '/board/list');
     }
