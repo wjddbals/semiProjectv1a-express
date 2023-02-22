@@ -84,20 +84,30 @@ class Zipcode{
          return dongs;
      };
 
-    async getZipcode() {
+    async getZipcode(sido,gugun,dong) { //우편번호 알기위해서 디도 구군 동 입력
         let conn = null;
-        let params = [];
-        let sidos = [];
+        let params = [sido,gugun,dong];
+        let zips = [];
 
         try {
             conn = await oracledb.makeConn();
+
+            let result = await conn.execute(zipcodesql.zipsql, params,oracledb.options);
+            let rs =result.resultSet;
+            let row =null;
+            while ((row=await rs.getRow())){
+                let zip ={'zipcode':row.ZIPCODE,'sido':row.SIDO,'gugun':row.GUGUN,'dong':row.DONG,'ri':row.RI,'bunji':row.BUNGI,}
+                zips.push(zip);
+            }
+
+
         } catch (e) {
             console.log(e);
         } finally {
             await oracledb.closeConn(conn);
         }
 
-        return sidos;
+        return zips;
     };
 
 
