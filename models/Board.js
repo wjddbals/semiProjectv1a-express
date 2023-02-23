@@ -1,10 +1,17 @@
 //Board.js
 const oracledb = require('../models/Oracle');
+const ppg =15;
 
 let boardsql = {
     insert: ' insert into board2 (bno,  title, userid, contents) ' +
         ' values (bno.nextval, :1, :2, :3) ',
     select: ` select bno, title, userid, views, to_char(regdate, 'YYYY-MM-DD') regdate from board2 order by bno desc `,
+
+    paging1: ` select * from (select bno, title, userid, views, to_char(regdate, 'YYYY-MM-DD') regdate, `
+        + ` row_number() over (order by bno desc) rowno from board2 `,
+    paging2: ` ) bd2 where rowno >= :1 and rowno < :2 `,
+
+
     selectOne:`select board2.*, to_char(regdate,'yyyy-mm-dd') regdate2 from board2 where bno=:1`,
 
     selectCount :`select count(bno) cnt from board2`,
@@ -42,21 +49,19 @@ class Board {
     }
 
 
-    async select () {   // 게시판 목록출 력
+    async select (stnum) {   // 게시판 목록출 력
         let conn = null;
-        let params = [];
+        let params = [stnum,stnum + ppg];
         let bds = []; // 결과 적용
 
         try { conn = await oracledb.makeConn();
-            let result = await conn.execute(boardsql.selectCount, params, oracledb.options);
-            let rs = result.resultSet;
+          let idx =await this.selectCount(); //총게실글수 게산
+            idx = idx - stnum + 1;
 
-            let idx = -1, row =null;
-            if((row =await rs.getRow())) idx =row =row.CNT; //총개수
-           result = await conn.execute(boardsql.select, params, oracledb.options);
-             rs = result.resultSet;
+           let result = await conn.execute(boardsql.paging1 + boardsql.paging2, params, oracledb.options);
+             let rs = result.resultSet;
 
-             row = null;
+           let row = null;
             while ((row = await rs.getRow())){
                 let bd = new Board(row.BNO, row.TITLE, row.USERID, row.REGDATE, null,row.VIEWS);
                 bd.idx =idx--; //글번호 컬럼
@@ -65,6 +70,26 @@ class Board {
         } catch (e){ console.log(e); }
         finally { await oracledb.closeConn(); }
         return bds;
+    }
+
+    async selectCount () {   // 총 게시물수 게산
+        let conn = null;
+        let params = [];
+        let cnt = -1; // 결과 저장용
+
+        try {
+            conn = await oracledb.makeConn();
+            let result = await conn.execute(boardsql.selectCount, [], oracledb.options);
+            let rs = result.resultSet;
+
+            let  row =null;
+            if((row =await rs.getRow())) cnt = row.CNT; //총 게시글개수
+
+
+
+        } catch (e){ console.log(e); }
+        finally { await oracledb.closeConn(); }
+        return cnt;
     }
 
 

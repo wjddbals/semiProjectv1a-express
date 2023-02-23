@@ -17,6 +17,7 @@ const Oracle = {
             return  await oracledb.getConnection(dbconfig);
         } catch (e) { console.log(e);}
     },
+
     closeConn: async (conn) => {
         if (conn) {
             try { await conn.close(); }
