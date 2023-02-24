@@ -52,11 +52,13 @@ class Board {
     async select (stnum) {   // 게시판 목록출 력
         let conn = null;
         let params = [stnum,stnum + ppg];
-        let bds = []; // 결과 적용
+        let bds = []; // 결과 저장용
+        let allcnt = -1;
 
-        try { conn = await oracledb.makeConn();
-          let idx =await this.selectCount(); //총게실글수 게산
-            idx = idx - stnum + 1;
+        try {
+            conn = await oracledb.makeConn();
+           allcnt =await this.selectCount(conn); //총게실글수 게산
+           let idx = allcnt - stnum + 1;
 
            let result = await conn.execute(boardsql.paging1 + boardsql.paging2, params, oracledb.options);
              let rs = result.resultSet;
@@ -69,26 +71,26 @@ class Board {
             }
         } catch (e){ console.log(e); }
         finally { await oracledb.closeConn(); }
-        return bds;
+        let result ={'bds':bds,'allcnt':allcnt}
+
+        return result;
     }
 
-    async selectCount () {   // 총 게시물수 게산
-        let conn = null;
+    async selectCount (conn) {   // 총 게시물수 게산
+
         let params = [];
         let cnt = -1; // 결과 저장용
 
         try {
-            conn = await oracledb.makeConn();
-            let result = await conn.execute(boardsql.selectCount, [], oracledb.options);
+
+            let result = await conn.execute(boardsql.selectCount, params, oracledb.options);
             let rs = result.resultSet;
 
             let  row =null;
             if((row =await rs.getRow())) cnt = row.CNT; //총 게시글개수
 
-
-
         } catch (e){ console.log(e); }
-        finally { await oracledb.closeConn(); }
+
         return cnt;
     }
 

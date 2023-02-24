@@ -21,7 +21,9 @@ router.get('/list',async (req, res) => {
     cpg =cpg ? parseInt(cpg) : 1;
     let stnum =(cpg - 1) * ppg + 1; //지정한 페이지의 범위 시작 값
 
-    let allcnt = new Board().selectCount().then((cnt) => cnt); //총게시물 수
+    let result = new Board().select(stnum).then((result) => result);
+    let bds = result.then(r=>r.bds);
+    let allcnt =result.then(r=>r.allcnt);
     let alpg =Math.ceil(await allcnt/ppg); //총페이지수 게산
 
 
@@ -57,7 +59,7 @@ router.get('/list',async (req, res) => {
             'isprev': isprev, 'isnext':isnext,
             'isprev10': isprev10, 'isnext10':isnext10};
 
-    let bds = new Board().select(stnum).then((bds) => bds);
+
     console.log(cpg,stnum,stpgn,alpg,isnext);
 
     // handlebars 뷰 엔진으로 응답처리
