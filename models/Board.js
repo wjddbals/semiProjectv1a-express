@@ -4,7 +4,7 @@ const ppg =15;
 
 let boardsql = {
     insert: ' insert into board2 (bno,  title, userid, contents) ' +
-        ' values (bno.nextval, :1, :2, :3) ',
+        ' values (bno2.nextval, :1, :2, :3) ',
     select: ` select bno, title, userid, views, to_char(regdate, 'YYYY-MM-DD') regdate from board2 order by bno desc `,
 
     paging1: ` select * from (select bno, title, userid, views, to_char(regdate, 'YYYY-MM-DD') regdate, `
@@ -23,6 +23,14 @@ let boardsql = {
     delete: ' delete from board2 where bno=:1 ',
 }
 
+//동적쿼리 생성 함수
+const makeWhere =(ftype,fkey) => { //뛰어써야 백틱앞두 where
+    let where =` where title = '${fkey}' `;
+    if (ftype =='userid') where=` where userid= '${fkey}' `
+        else if (ftype == 'contents') where=` where contents like '%${fkey}%' `
+    return where;
+
+};
 class Board {
     constructor(bno, title, userid, regdate, contents, views) {
         this.bno = bno;
@@ -49,18 +57,20 @@ class Board {
     }
 
 
-    async select (stnum) {   // 게시판 목록출 력
+    async select (stnum,ftype,fkey) {   // 게시판 목록출 력
         let conn = null;
         let params = [stnum,stnum + ppg];
         let bds = []; // 결과 저장용
         let allcnt = -1;
+        let where ='';
+        if (fkey !==undefined) where =makeWhere(ftype,fkey);
 
         try {
             conn = await oracledb.makeConn();
-           allcnt =await this.selectCount(conn); //총게실글수 게산
+           allcnt =await this.selectCount(conn,where); //총게실글수 게산
            let idx = allcnt - stnum + 1;
 
-           let result = await conn.execute(boardsql.paging1 + boardsql.paging2, params, oracledb.options);
+           let result = await conn.execute(boardsql.paging1 + where +  boardsql.paging2, params, oracledb.options);
              let rs = result.resultSet;
 
            let row = null;
@@ -76,14 +86,15 @@ class Board {
         return result;
     }
 
-    async selectCount (conn) {   // 총 게시물수 게산
+    async selectCount (conn,where) {   // 총 게시물수 게산
 
         let params = [];
         let cnt = -1; // 결과 저장용
 
         try {
 
-            let result = await conn.execute(boardsql.selectCount, params, oracledb.options);
+            let result = await conn.execute(
+                boardsql.selectCount + where, params, oracledb.options);
             let rs = result.resultSet;
 
             let  row =null;

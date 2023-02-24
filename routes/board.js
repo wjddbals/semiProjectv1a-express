@@ -17,13 +17,16 @@ const ppg = 15; //페이지당 게시물 수
 // ednum : stnum + ppg
 
 router.get('/list',async (req, res) => {
-    let {cpg} = req.query;
+    let [cpg,ftype,fkey] = [req.query.cpg,req.query.ftype,req.query.fkey];
+    console.log (fkey,ftype);
+
     cpg =cpg ? parseInt(cpg) : 1;
     let stnum =(cpg - 1) * ppg + 1; //지정한 페이지의 범위 시작 값
 
-    let result = new Board().select(stnum).then((result) => result);
+    let result = new Board().select(stnum,ftype,fkey).then((result) => result);
     let bds = result.then(r=>r.bds);
     let allcnt =result.then(r=>r.allcnt);
+
     let alpg =Math.ceil(await allcnt/ppg); //총페이지수 게산
 
 
@@ -61,10 +64,11 @@ router.get('/list',async (req, res) => {
 
 
     console.log(cpg,stnum,stpgn,alpg,isnext);
+    let qry =fkey? `&ftype=${ftype}$fkey=${fkey}`:'';
 
     // handlebars 뷰 엔진으로 응답처리
     res.render('board/list', {title: '게시판 목록',
-        bds: await bds, stpgns:stpgns, pgn:pgn});
+        bds: await bds, stpgns:stpgns, pgn:pgn,qry:qry});
 });
 
 
